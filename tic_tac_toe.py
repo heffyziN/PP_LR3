@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import sys
 
 
 class TicTacToe:
@@ -87,31 +88,35 @@ class TicTacToe:
 
     def make_move(self, position):
         """Обрабатывает ход игрока"""
-        if self.game_over or self.board[position] != "":
-            return
+        try:
+            if self.game_over or self.board[position] != "":
+                return
 
-        self.board[position] = self.current_player
-        self.buttons[position].config(
-            text=self.current_player,
-            fg="red" if self.current_player == "X" else "blue"
-        )
-        self.move_count += 1
+            self.board[position] = self.current_player
+            self.buttons[position].config(
+                text=self.current_player,
+                fg="red" if self.current_player == "X" else "blue"
+            )
+            self.move_count += 1
 
-        # Проверка победы
-        if self.check_win():
-            self.game_over = True
-            messagebox.showinfo("Победа!", f"Игрок {self.current_player} победил!")
-            return
+            # Проверка победы
+            if self.check_win():
+                self.game_over = True
+                messagebox.showinfo("Победа!", f"Игрок {self.current_player} победил!")
+                return
 
-        # Проверка ничьей
-        if self.move_count == 9:
-            self.game_over = True
-            messagebox.showinfo("Ничья!", "Игра закончилась вничью!")
-            return
+            # Проверка ничьей
+            if self.move_count == 9:
+                self.game_over = True
+                messagebox.showinfo("Ничья!", "Игра закончилась вничью!")
+                return
 
-        # Смена игрока
-        self.current_player = "O" if self.current_player == "X" else "X"
-        self.status_label.config(text=f"Ход игрока: {self.current_player}")
+            # Смена игрока
+            self.current_player = "O" if self.current_player == "X" else "X"
+            self.status_label.config(text=f"Ход игрока: {self.current_player}")
+
+        except Exception as e:
+            self.handle_error(f"Ошибка при выполнении хода: {str(e)}")
 
     def check_win(self):
         """Проверяет выигрышные комбинации"""
@@ -129,23 +134,44 @@ class TicTacToe:
 
     def reset_game(self):
         """Сбрасывает игру"""
-        self.current_player = "X"
-        self.board = [""] * 9
-        self.game_over = False
-        self.move_count = 0
+        try:
+            self.current_player = "X"
+            self.board = [""] * 9
+            self.game_over = False
+            self.move_count = 0
 
-        for button in self.buttons:
-            button.config(text="", fg="black")
+            for button in self.buttons:
+                button.config(text="", fg="black")
 
-        self.status_label.config(text=f"Ход игрока: {self.current_player}")
+            self.status_label.config(text=f"Ход игрока: {self.current_player}")
+
+        except Exception as e:
+            self.handle_error(f"Ошибка при сбросе игры: {str(e)}")
 
     def show_rules(self):
         """Показывает правила игры"""
-        messagebox.showinfo("Правила", "Простая игра в крестики-нолики для двух игроков.")
+        try:
+            messagebox.showinfo("Правила", "Простая игра в крестики-нолики для двух игроков.")
+        except Exception as e:
+            self.handle_error(f"Ошибка при показе правил: {str(e)}")
 
     def show_about(self):
         """Показывает информацию о программе"""
-        messagebox.showinfo("О программе", "Крестики-Нолики v1.0\nСоздано для лабораторной работы №3")
+        try:
+            messagebox.showinfo("О программе", "Крестики-Нолики v1.0\nСоздано для лабораторной работы")
+        except Exception as e:
+            self.handle_error(f"Ошибка при показе информации: {str(e)}")
+
+    def handle_error(self, error_message):
+        """Обрабатывает исключения"""
+        try:
+            messagebox.showerror(
+                "Ошибка",
+                f"{error_message}\n\nПрограмма продолжит работу."
+            )
+            print(f"Ошибка: {error_message}", file=sys.stderr)
+        except:
+            print("Критическая ошибка в обработчике ошибок")
 
     def run(self):
         self.window.mainloop()
