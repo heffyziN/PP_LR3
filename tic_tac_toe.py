@@ -8,6 +8,7 @@ class TicTacToe:
         self.window = tk.Tk()
         self.window.title("Крестики-Нолики")
         self.window.geometry("400x450")
+        self.window.minsize(350, 400)
 
         # Базовые переменные
         self.current_player = "X"
@@ -18,6 +19,17 @@ class TicTacToe:
 
         self.create_menu()
         self.create_widgets()
+        self.center_window()
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+    def center_window(self):
+        """Центрирует окно на экране"""
+        self.window.update_idletasks()
+        width = self.window.winfo_width()
+        height = self.window.winfo_height()
+        x = (self.window.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.window.winfo_screenheight() // 2) - (height // 2)
+        self.window.geometry(f'{width}x{height}+{x}+{y}')
 
     def create_menu(self):
         """Создает меню приложения"""
@@ -29,7 +41,7 @@ class TicTacToe:
         menubar.add_cascade(label="Файл", menu=file_menu)
         file_menu.add_command(label="Новая игра", command=self.reset_game)
         file_menu.add_separator()
-        file_menu.add_command(label="Выход", command=self.window.quit)
+        file_menu.add_command(label="Выход", command=self.on_closing)
 
         # Меню "Игра"
         game_menu = tk.Menu(menubar, tearoff=0)
@@ -54,11 +66,14 @@ class TicTacToe:
 
         # Фрейм для кнопок
         game_frame = tk.Frame(self.window, padx=10, pady=10)
-        game_frame.pack()
+        game_frame.pack(expand=True)
 
         # Кнопки поля
         self.buttons = []
         for i in range(9):
+            row = i // 3
+            col = i % 3
+
             button = tk.Button(
                 game_frame,
                 text="",
@@ -68,8 +83,12 @@ class TicTacToe:
                 command=lambda idx=i: self.make_move(idx),
                 bg="#f0f0f0"
             )
-            button.grid(row=i // 3, column=i % 3, padx=2, pady=2)
+            button.grid(row=row, column=col, padx=2, pady=2, sticky="nsew")
             self.buttons.append(button)
+
+            # Настройка адаптивности сетки
+            game_frame.grid_rowconfigure(row, weight=1)
+            game_frame.grid_columnconfigure(col, weight=1)
 
         # Фрейм для кнопок управления
         control_frame = tk.Frame(self.window, pady=10)
@@ -105,7 +124,7 @@ class TicTacToe:
         exit_btn = tk.Button(
             control_frame,
             text="Выход",
-            command=self.window.quit,
+            command=self.on_closing,
             font=("Arial", 12),
             bg="#f44336",
             fg="white",
@@ -184,6 +203,18 @@ class TicTacToe:
         except Exception as e:
             self.handle_error(f"Ошибка при сбросе игры: {str(e)}")
 
+    def on_closing(self):
+        """Обработчик закрытия окна"""
+        if not self.game_over and self.move_count > 0:
+            if not messagebox.askyesno(
+                    "Выход",
+                    "Игра не завершена. Вы уверены, что хотите выйти?"
+            ):
+                return
+
+        self.window.quit()
+        self.window.destroy()
+
     def show_rules(self):
         """Показывает правила игры"""
         try:
@@ -194,7 +225,7 @@ class TicTacToe:
     def show_about(self):
         """Показывает информацию о программе"""
         try:
-            messagebox.showinfo("О программе", "Крестики-Нолики v1.0\nСоздано для лабораторной работы")
+            messagebox.showinfo("О программе", "Крестики-Нолики \nСоздано для лабораторной работы №3")
         except Exception as e:
             self.handle_error(f"Ошибка при показе информации: {str(e)}")
 
