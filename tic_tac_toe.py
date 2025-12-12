@@ -23,7 +23,7 @@ class TicTacToe:
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def center_window(self):
-        """Центрирует окно на экране"""
+        # Центрирует окно на экране
         self.window.update_idletasks()
         width = self.window.winfo_width()
         height = self.window.winfo_height()
@@ -32,21 +32,22 @@ class TicTacToe:
         self.window.geometry(f'{width}x{height}+{x}+{y}')
 
     def create_menu(self):
-        """Создает меню приложения"""
+        # Создает меню приложения
         menubar = tk.Menu(self.window)
         self.window.config(menu=menubar)
 
         # Меню "Файл"
         file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Файл", menu=file_menu)
-        file_menu.add_command(label="Новая игра", command=self.reset_game)
+        file_menu.add_command(label="Новая игра", command=self.reset_game, accelerator="Ctrl+N")
         file_menu.add_separator()
-        file_menu.add_command(label="Выход", command=self.on_closing)
+        file_menu.add_command(label="Выход", command=self.on_closing, accelerator="Alt+F4")
 
         # Меню "Игра"
         game_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Игра", menu=game_menu)
         game_menu.add_command(label="Сброс", command=self.reset_game)
+        game_menu.add_command(label="Статистика", command=self.show_stats)
 
         # Меню "Справка"
         help_menu = tk.Menu(menubar, tearoff=0)
@@ -54,8 +55,12 @@ class TicTacToe:
         help_menu.add_command(label="Правила", command=self.show_rules)
         help_menu.add_command(label="О программе", command=self.show_about)
 
+        # Горячие клавиши
+        self.window.bind('<Control-n>', lambda e: self.reset_game())
+        self.window.bind('<Control-N>', lambda e: self.reset_game())
+
     def create_widgets(self):
-        """Создание базовых виджетов"""
+        # Создание базовых виджетов
         # Метка статуса
         self.status_label = tk.Label(
             self.window,
@@ -134,7 +139,7 @@ class TicTacToe:
         exit_btn.pack(side=tk.RIGHT, padx=5)
 
     def make_move(self, position):
-        """Обрабатывает ход игрока"""
+        # Обрабатывает ход игрока
         try:
             if self.game_over or self.board[position] != "":
                 return
@@ -167,7 +172,7 @@ class TicTacToe:
             self.handle_error(f"Ошибка при выполнении хода: {str(e)}")
 
     def check_win(self):
-        """Проверяет выигрышные комбинации"""
+        # Проверяет выигрышные комбинации
         win_patterns = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],
             [0, 3, 6], [1, 4, 7], [2, 5, 8],
@@ -187,7 +192,7 @@ class TicTacToe:
             self.buttons[pos].config(bg="#A5D6A7")
 
     def reset_game(self):
-        """Сбрасывает игру"""
+        # Сбрасывает игру
         try:
             self.current_player = "X"
             self.board = [""] * 9
@@ -203,8 +208,22 @@ class TicTacToe:
         except Exception as e:
             self.handle_error(f"Ошибка при сбросе игры: {str(e)}")
 
+    def show_stats(self):
+       # Показывает статистику
+        try:
+            stats_text = (
+                "Статистика игры:\n\n"
+                f"Текущий игрок: {self.current_player}\n"
+                f"Сделано ходов: {self.move_count}\n"
+                f"Статус игры: {'Завершена' if self.game_over else 'Активна'}\n\n"
+                "Для более подробной статистики\nнужно реализовать сохранение результатов."
+            )
+            messagebox.showinfo("Статистика", stats_text)
+        except Exception as e:
+            self.handle_error(f"Ошибка при показе статистики: {str(e)}")
+
     def on_closing(self):
-        """Обработчик закрытия окна"""
+        # Обработчик закрытия окна
         if not self.game_over and self.move_count > 0:
             if not messagebox.askyesno(
                     "Выход",
@@ -216,21 +235,41 @@ class TicTacToe:
         self.window.destroy()
 
     def show_rules(self):
-        """Показывает правила игры"""
+        # Показывает правила игры
         try:
-            messagebox.showinfo("Правила", "Простая игра в крестики-нолики для двух игроков.")
+            rules_text = (
+                "Правила игры 'Крестики-Нолики':\n\n"
+                "1. Играют два игрока: 'X' и 'O'\n"
+                "2. Игроки ходят по очереди\n"
+                "3. Цель - выстроить 3 своих символа\n   в ряд по горизонтали, вертикали или диагонали\n"
+                "4. Если все клетки заполнены,\n   а победителя нет - объявляется ничья\n\n"
+                "Управление:\n"
+                "- Нажимайте на клетки для хода\n"
+                "- Используйте меню для управления игрой"
+            )
+            messagebox.showinfo("Правила игры", rules_text)
         except Exception as e:
             self.handle_error(f"Ошибка при показе правил: {str(e)}")
 
     def show_about(self):
-        """Показывает информацию о программе"""
+        # Показывает информацию о программе
         try:
-            messagebox.showinfo("О программе", "Крестики-Нолики \nСоздано для лабораторной работы №3")
+            about_text = (
+                "Крестики-Нолики\n\n"
+                "Автор: Завальный Михаил\n"
+                "Курс: Прикладное программирование\n"
+                "Лабораторная работа: Приложения с графическим интерфейсом\n\n"
+                "Используемые технологии:\n"
+                "- Python\n"
+                "- Tkinter\n"
+                "- Git"
+            )
+            messagebox.showinfo("О программе", about_text)
         except Exception as e:
             self.handle_error(f"Ошибка при показе информации: {str(e)}")
 
     def handle_error(self, error_message):
-        """Обрабатывает исключения"""
+        # Обрабатывает исключения
         try:
             messagebox.showerror(
                 "Ошибка",
@@ -241,9 +280,25 @@ class TicTacToe:
             print("Критическая ошибка в обработчике ошибок")
 
     def run(self):
-        self.window.mainloop()
+        # Запускает главный цикл приложения
+        try:
+            self.window.mainloop()
+        except Exception as e:
+            self.handle_error(f"Критическая ошибка приложения: {str(e)}")
+
+
+def main():
+    # Точка входа в программу
+    try:
+        app = TicTacToe()
+        app.run()
+    except Exception as e:
+        messagebox.showerror(
+            "Критическая ошибка",
+            f"Не удалось запустить приложение:\n{str(e)}"
+        )
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    app = TicTacToe()
-    app.run()
+    main()
