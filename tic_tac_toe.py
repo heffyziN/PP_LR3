@@ -12,6 +12,7 @@ class TicTacToe:
         self.current_player = "X"
         self.board = [""] * 9
         self.game_over = False
+        self.move_count = 0
 
         self.create_menu()
         self.create_widgets()
@@ -45,12 +46,12 @@ class TicTacToe:
         self.status_label = tk.Label(
             self.window,
             text=f"Ход игрока: {self.current_player}",
-            font=("Arial", 14)
+            font=("Arial", 14, "bold")
         )
         self.status_label.pack(pady=10)
 
         # Фрейм для кнопок
-        game_frame = tk.Frame(self.window)
+        game_frame = tk.Frame(self.window, padx=10, pady=10)
         game_frame.pack()
 
         # Кнопки поля
@@ -61,11 +62,28 @@ class TicTacToe:
                 text="",
                 width=5,
                 height=2,
-                font=("Arial", 20, "bold"),
-                command=lambda idx=i: self.make_move(idx)
+                font=("Arial", 24, "bold"),
+                command=lambda idx=i: self.make_move(idx),
+                bg="#f0f0f0"
             )
             button.grid(row=i // 3, column=i % 3, padx=2, pady=2)
             self.buttons.append(button)
+
+        # Кнопка сброса
+        reset_frame = tk.Frame(self.window)
+        reset_frame.pack(pady=10)
+
+        reset_btn = tk.Button(
+            reset_frame,
+            text="Новая игра",
+            command=self.reset_game,
+            font=("Arial", 12),
+            bg="#4CAF50",
+            fg="white",
+            padx=20,
+            pady=5
+        )
+        reset_btn.pack()
 
     def make_move(self, position):
         """Обрабатывает ход игрока"""
@@ -73,12 +91,22 @@ class TicTacToe:
             return
 
         self.board[position] = self.current_player
-        self.buttons[position].config(text=self.current_player)
+        self.buttons[position].config(
+            text=self.current_player,
+            fg="red" if self.current_player == "X" else "blue"
+        )
+        self.move_count += 1
 
         # Проверка победы
         if self.check_win():
             self.game_over = True
             messagebox.showinfo("Победа!", f"Игрок {self.current_player} победил!")
+            return
+
+        # Проверка ничьей
+        if self.move_count == 9:
+            self.game_over = True
+            messagebox.showinfo("Ничья!", "Игра закончилась вничью!")
             return
 
         # Смена игрока
@@ -104,9 +132,10 @@ class TicTacToe:
         self.current_player = "X"
         self.board = [""] * 9
         self.game_over = False
+        self.move_count = 0
 
         for button in self.buttons:
-            button.config(text="")
+            button.config(text="", fg="black")
 
         self.status_label.config(text=f"Ход игрока: {self.current_player}")
 
@@ -116,7 +145,7 @@ class TicTacToe:
 
     def show_about(self):
         """Показывает информацию о программе"""
-        messagebox.showinfo("О программе", "Крестики-Нолики v1.0\nСоздано для лабораторной работы")
+        messagebox.showinfo("О программе", "Крестики-Нолики v1.0\nСоздано для лабораторной работы №3")
 
     def run(self):
         self.window.mainloop()
