@@ -14,6 +14,7 @@ class TicTacToe:
         self.board = [""] * 9
         self.game_over = False
         self.move_count = 0
+        self.winning_pattern = []
 
         self.create_menu()
         self.create_widgets()
@@ -70,12 +71,13 @@ class TicTacToe:
             button.grid(row=i // 3, column=i % 3, padx=2, pady=2)
             self.buttons.append(button)
 
-        # Кнопка сброса
-        reset_frame = tk.Frame(self.window)
-        reset_frame.pack(pady=10)
+        # Фрейм для кнопок управления
+        control_frame = tk.Frame(self.window, pady=10)
+        control_frame.pack()
 
-        reset_btn = tk.Button(
-            reset_frame,
+        # Кнопка новой игры
+        new_game_btn = tk.Button(
+            control_frame,
             text="Новая игра",
             command=self.reset_game,
             font=("Arial", 12),
@@ -84,7 +86,33 @@ class TicTacToe:
             padx=20,
             pady=5
         )
-        reset_btn.pack()
+        new_game_btn.pack(side=tk.LEFT, padx=5)
+
+        # Кнопка сброса
+        reset_btn = tk.Button(
+            control_frame,
+            text="Сброс",
+            command=self.reset_game,
+            font=("Arial", 12),
+            bg="#2196F3",
+            fg="white",
+            padx=20,
+            pady=5
+        )
+        reset_btn.pack(side=tk.LEFT, padx=5)
+
+        # Кнопка выхода
+        exit_btn = tk.Button(
+            control_frame,
+            text="Выход",
+            command=self.window.quit,
+            font=("Arial", 12),
+            bg="#f44336",
+            fg="white",
+            padx=20,
+            pady=5
+        )
+        exit_btn.pack(side=tk.RIGHT, padx=5)
 
     def make_move(self, position):
         """Обрабатывает ход игрока"""
@@ -102,6 +130,7 @@ class TicTacToe:
             # Проверка победы
             if self.check_win():
                 self.game_over = True
+                self.highlight_winning_line()
                 messagebox.showinfo("Победа!", f"Игрок {self.current_player} победил!")
                 return
 
@@ -129,8 +158,14 @@ class TicTacToe:
         for pattern in win_patterns:
             if (self.board[pattern[0]] == self.board[pattern[1]] ==
                     self.board[pattern[2]] != ""):
+                self.winning_pattern = pattern
                 return True
         return False
+
+    def highlight_winning_line(self):
+        """Подсвечивает выигрышную линию"""
+        for pos in self.winning_pattern:
+            self.buttons[pos].config(bg="#A5D6A7")
 
     def reset_game(self):
         """Сбрасывает игру"""
@@ -139,9 +174,10 @@ class TicTacToe:
             self.board = [""] * 9
             self.game_over = False
             self.move_count = 0
+            self.winning_pattern = []
 
             for button in self.buttons:
-                button.config(text="", fg="black")
+                button.config(text="", bg="#f0f0f0", fg="black")
 
             self.status_label.config(text=f"Ход игрока: {self.current_player}")
 
